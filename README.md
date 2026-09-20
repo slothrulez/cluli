@@ -6,14 +6,7 @@
 
 Real-time AI help on a stealth overlay that screen sharing cannot see. Ask by voice or screenshot, and get clear answers that stream in as you need them.
 
-<p>
-  <a href="https://github.com/Cluli/Cluli/releases/latest"><img src="https://img.shields.io/github/v/release/Cluli/Cluli?style=for-the-badge&label=Latest&color=111111&labelColor=000000" alt="Latest release" /></a>
-  <a href="https://github.com/Cluli/Cluli/releases"><img src="https://img.shields.io/github/downloads/Cluli/Cluli/total?style=for-the-badge&color=111111&labelColor=000000" alt="Downloads" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-111111?style=for-the-badge&labelColor=000000" alt="MIT License" /></a>
-  <img src="https://img.shields.io/badge/Platforms-Windows%20%7C%20macOS%20%7C%20Linux-111111?style=for-the-badge&labelColor=000000" alt="Platforms" />
-</p>
 
-<a href="https://cluli.cluli.dev"><b>Website</b></a> &nbsp;|&nbsp;
 <a href="#download">Download</a> &nbsp;|&nbsp;
 <a href="#quick-start">Quick start</a> &nbsp;|&nbsp;
 <a href="#how-it-works">How it works</a>
