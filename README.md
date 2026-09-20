@@ -19,15 +19,6 @@ Real-time AI help on a stealth overlay that screen sharing cannot see. Ask by vo
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
 ---
-
-## ✨ What is Cluli?
-
-Most AI assistants make the user bring context **to the AI**.
-
-Cluli takes the opposite approach:
-
-> **Bring the AI to the context.**
-
 When you're coding, reading documentation, debugging an application, studying an algorithm, or looking at something you don't understand, the relevant information is often already visible on your screen.
 
 Cluli can capture that screen, send the visual context to Gemini's multimodal capabilities, combine it with your selected AI skill and recent session context, and stream the response back to you.
