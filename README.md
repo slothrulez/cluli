@@ -1,3 +1,4 @@
+<div align="center">
 # Cluli
 
 ### The open-source AI copilot for technical interviews.
@@ -7,6 +8,8 @@ Cluli is a free, open-source **Cluely alternative** built for technical intervie
 It provides real-time AI assistance through a stealth desktop overlay that stays out of screen-sharing and recording captures. Ask a question through **voice or a screenshot**, and Cluli uses Gemini's multimodal capabilities to understand the context and stream an answer back to you.
 
 **See it → Ask it → Get the answer.**
+
+</div>
 
 ---
 
