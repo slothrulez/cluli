@@ -1,362 +1,327 @@
-<div align="center">
-
 # Cluli
 
-**The invisible AI interview copilot.**
+### The open-source AI copilot for technical interviews.
 
-Real-time AI help on a stealth overlay that screen sharing cannot see. Ask by voice or screenshot, and get clear answers that stream in as you need them.
+Cluli is a free, open-source **Cluely alternative** built for technical interviews, online assessments (OAs), and competitive programming.
 
-**See something → Capture it → Ask → Get a streamed answer.**
+It provides real-time AI assistance through a stealth desktop overlay that stays out of screen-sharing and recording captures. Ask a question through **voice or a screenshot**, and Cluli uses Gemini's multimodal capabilities to understand the context and stream an answer back to you.
 
-[![Electron](https://img.shields.io/badge/Electron-Desktop%20App-47848F?logo=electron\&logoColor=white)](https://www.electronjs.org/)
-[![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-8E75B2)](https://ai.google.dev/)
-[![Whisper](https://img.shields.io/badge/Speech-Whisper-412991)](https://github.com/openai/whisper)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
-
----
-When you're coding, reading documentation, debugging an application, studying an algorithm, or looking at something you don't understand, the relevant information is often already visible on your screen.
-
-Cluli can capture that screen, send the visual context to Gemini's multimodal capabilities, combine it with your selected AI skill and recent session context, and stream the response back to you.
-
-No browser tab switching.
-No manual screenshot uploading.
-No repeatedly explaining what you're looking at.
+**See it → Ask it → Get the answer.**
 
 ---
 
-## 🚀 Why Cluli?
+## Overview
 
-### The traditional workflow
+During a technical interview, the information you need help with is often already right in front of you — the coding problem, an error message, documentation, or a diagram.
+
+Cluli is designed to give you AI assistance without forcing you to switch applications or manually upload everything to a chatbot.
+
+It runs as a transparent, frameless, always-on-top Electron application. You can capture your screen or ask through voice, send that context to the configured AI provider, and receive the response through a floating response interface.
+
+The entire interaction is designed to happen alongside the interview rather than requiring a separate browser tab.
+
+## Problem Statement
+
+Technical interviews can require solving unfamiliar problems under time pressure.
+
+When using a conventional AI assistant, the workflow usually looks like:
 
 ```text
-Working on something
+Interview Question
        ↓
-Stop working
+Take Screenshot / Copy Question
        ↓
-Take screenshot / copy context
+Switch to Browser
        ↓
-Open browser
+Open AI Assistant
        ↓
-Open AI assistant
+Upload / Paste Context
        ↓
-Upload / paste
+Explain the Problem
        ↓
-Explain context
+Wait for Response
        ↓
-Wait for response
-       ↓
-Return to original application
+Switch Back
 ```
 
-### The Cluli workflow
+Every switch introduces friction and requires the user to manually move context between applications.
+
+For an interview copilot, the interaction needs to be much faster.
+
+## Solution
+
+Cluli puts the AI assistant directly on the desktop.
 
 ```text
-Working on something
+Interview Question
        ↓
 Trigger Cluli
        ↓
-Capture current desktop
+Capture Screen / Ask by Voice
        ↓
-Gemini understands the context
+Gemini Understands the Context
        ↓
-Response streams back
+AI Response Streams
        ↓
-Continue working
+Read the Answer
 ```
 
-The goal is to make AI assistance feel like a **native layer of the desktop**, rather than another application you have to switch into.
+The screenshot pipeline captures the desktop locally, identifies the relevant display, converts the captured image to PNG, and sends it to Gemini's multimodal model together with the selected prompt skill and recent session context.
+
+Responses are streamed back through Electron IPC into Cluli's response interface.
+
+This allows Cluli to understand what is currently on the screen without requiring the user to manually upload the screenshot or repeatedly explain the context.
 
 ---
 
-# 🧠 Core Architecture
+## Features
+
+### 🕵️ Stealth Overlay
+
+Cluli runs as a transparent, frameless, always-on-top desktop overlay designed for use alongside screen sharing and recording applications.
+
+The overlay can also be hidden automatically when screen sharing begins.
+
+### 📸 Screenshot-Based AI
+
+Capture the current screen and send it directly to Gemini for visual reasoning.
+
+There is no separate OCR workflow between the screenshot and Gemini's multimodal processing.
+
+### 🎙️ Voice Input
+
+Ask questions using your microphone instead of typing.
+
+Cluli supports:
+
+- Local OpenAI Whisper
+- Microsoft Azure Speech
+- Manual recording
+- Automatic voice activity detection
+
+Local Whisper can run through a persistent Python worker and supports CPU inference and CUDA acceleration when available.
+
+### ⚡ Real-Time Streaming
+
+AI responses are streamed as they are generated.
+
+```text
+Gemini
+   ↓
+LLMService
+   ↓
+Electron IPC
+   ↓
+Response Renderer
+   ↓
+Answer appears progressively
+```
+
+### 🧠 Session Memory
+
+Cluli keeps recent conversation context in memory.
+
+This allows follow-up questions such as:
+
+- "Can you optimize that?"
+- "What is the time complexity?"
+- "What if the input is empty?"
+- "Give me the C++ version."
+
+without requiring the entire problem to be explained again.
+
+### 🎯 Interview-Focused AI Skills
+
+Cluli separates AI behavior from the UI through prompt skill files.
+
+Current skills include:
+
+- DSA
+- Programming
+
+This makes it possible to configure how the AI responds without changing the application interface.
+
+### 💻 Code-Friendly Responses
+
+The response interface supports:
+
+- Markdown
+- Code blocks
+- Syntax highlighting
+- Algorithms
+- Mathematical notation
+- Tables
+- Debugging explanations
+- Visual reasoning
+- Long-form answers
+
+### 🖥️ Multi-Monitor Support
+
+Cluli supports desktop capture across multiple displays and provides controls for managing the overlay and its position.
+
+### 🖱️ Click-Through Mode
+
+The overlay can be switched into click-through mode so it does not interfere with interaction with the application underneath it.
+
+### ⌨️ Global Shortcuts
+
+Core actions can be triggered without leaving the current application.
+
+| Action | Shortcut |
+|---|---|
+| Screenshot Analysis | `Ctrl/Cmd + Shift + Alt + S` |
+| Toggle Visibility | `Ctrl/Cmd + Shift + V` |
+| Toggle Click-Through | `Ctrl/Cmd + Shift + I` |
+| Open Chat | `Ctrl/Cmd + Shift + C` |
+| Clear Session | `Ctrl/Cmd + Shift + \` |
+| Speech | `Alt + R` |
+| Move Window | `Ctrl/Cmd + Arrow Keys` |
+| Toggle Always-on-Top | `Ctrl/Cmd + Shift + T` |
+
+---
+
+## How It Works
+
+Cluli combines the desktop overlay, screenshot capture, session management, speech services, and Gemini into one pipeline.
 
 ```text
                          USER'S DESKTOP
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │    Cluli Overlay    │
-                    │ Transparent / Always │
-                    │       on Top        │
-                    └──────────┬──────────┘
-                               │
-                         Preload Bridge
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Electron Main     │
-                    │      Process        │
-                    └──────────┬──────────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                │                │
-              ▼                ▼                ▼
-       CaptureService    SessionManager   SpeechService
-              │                │                │
-              └────────────────┼────────────────┘
-                               ▼
+                              │
+                              ▼
+                     ┌──────────────────┐
+                     │   Cluli Overlay  │
+                     └────────┬─────────┘
+                              │
+                        Preload Bridge
+                              │
+                              ▼
+                     ┌──────────────────┐
+                     │ Electron Main    │
+                     │    Process       │
+                     └────────┬─────────┘
+                              │
+             ┌────────────────┼────────────────┐
+             │                │                │
+             ▼                ▼                ▼
+       CaptureService   SessionManager   SpeechService
+             │                │                │
+             └────────────────┼────────────────┘
+                              ▼
                        ┌──────────────┐
                        │  LLMService  │
                        └──────┬───────┘
                               │
                               ▼
-                    ┌────────────────────┐
-                    │ Gemini Multimodal  │
-                    │       Model        │
-                    └─────────┬──────────┘
+                     ┌──────────────────┐
+                     │ Gemini Multimodal│
+                     │      Model       │
+                     └────────┬─────────┘
                               │
-                         Streaming
+                          Streaming
                               │
                               ▼
-                    ┌────────────────────┐
-                    │  Response Window  │
-                    └────────────────────┘
+                     ┌──────────────────┐
+                     │ Response Window │
+                     └──────────────────┘
 ```
 
-## The renderer is intentionally separated from privileged desktop functionality through Electron's preload bridge and `contextBridge`. Renderer processes do not receive unrestricted Node.js or Electron access.
-
-# 🔥 Features
-
-## 🖥️ Desktop-Native AI
-
-Cluli runs as a transparent, frameless, always-on-top desktop overlay rather than a conventional full-size application window.
-
-It can remain available while you're working in another application and supports visibility and click-through controls.
-
----
-
-## 📸 Multimodal Screenshot Analysis
-
-Cluli integrates directly with Electron's desktop capture APIs.
-
-The screenshot pipeline is:
+### Screenshot Pipeline
 
 ```text
-Desktop
-   ↓
-desktopCapturer / screen
-   ↓
-Display identification
-   ↓
-Native image capture
-   ↓
-PNG conversion
-   ↓
-Gemini multimodal request
-```
-
-The screenshot is not merely attached manually by the user — desktop capture is part of Cluli's application architecture.
-
----
-
-## ⚡ Real-Time Streaming
-
-Cluli streams Gemini responses as they are generated.
-
-```text
-Gemini
-  ↓
-LLMService
-  ↓
+Current Desktop
+      ↓
+Desktop Capture
+      ↓
+Display Identification
+      ↓
+Native Image Capture
+      ↓
+PNG Conversion
+      ↓
+Selected AI Skill
+      ↓
+Recent Session Context
+      ↓
+Gemini Multimodal AI
+      ↓
+Streaming Response
+      ↓
 Electron IPC
-  ↓
-Response Renderer
-  ↓
-User sees tokens progressively
+      ↓
+Response Window
 ```
 
-This avoids the feeling of waiting for a complete generation before the interface updates.
+A Gemini request can contain:
+
+- Text prompt
+- Captured image
+- Selected prompt skill
+- Programming-language context
+- Recent session history
 
 ---
 
-## 🧠 Contextual Sessions
+## Tech Stack
 
-Cluli maintains recent interaction context in memory.
-
-This allows follow-up questions to build on previous interactions without forcing the user to repeatedly restate the entire problem.
-
-The session manager intentionally focuses on recent relevant context rather than maintaining an unbounded transcript.
-
----
-
-## 🎯 Prompt Skills
-
-AI behavior is separated from the application's UI through prompt skill files.
-
-Current skills include:
-
-* **DSA**
-* **Programming**
-
-Skills are stored under:
-
-```text
-prompts/
-├── dsa.md
-└── programming.md
-```
-
-This makes AI behavior independently configurable without coupling prompt logic directly to the UI implementation.
+- **Desktop Runtime:** Electron
+- **Frontend:** HTML / CSS / JavaScript
+- **AI:** Google Gemini
+- **Gemini SDK:** `@google/genai`
+- **Desktop Capture:** Electron `desktopCapturer` / `screen`
+- **IPC:** Electron IPC
+- **Secure Bridge:** Electron `contextBridge`
+- **Cloud Speech:** Microsoft Azure Speech
+- **Local Speech:** OpenAI Whisper
+- **ML Runtime:** Python / PyTorch
+- **Configuration:** dotenv
+- **Logging:** Winston
+- **Packaging:** electron-builder
+- **CI/CD:** GitHub Actions
+- **Development:** OpenAI Codex
+- **Repository:** GitHub
 
 ---
 
-## 💬 Dedicated Response Window
+## Codex / OpenAI Usage
 
-The compact overlay isn't forced to display everything.
+OpenAI Codex was used throughout the development of Cluli as a software-engineering accelerator.
 
-Long responses are handled by a dedicated response window capable of presenting:
+It was used to assist with implementation and iteration across areas including:
 
-* Markdown
-* Code
-* Syntax highlighting
-* Mathematical notation
-* Tables
-* Algorithms
-* Debugging explanations
-* Visual reasoning
-* Long-form answers
+- Electron architecture
+- IPC and preload boundaries
+- Desktop capture
+- Gemini integration
+- Streaming
+- Multi-window communication
+- Speech infrastructure
+- Whisper worker management
+- Testing
+- Packaging
+- CI/CD
 
----
-
-## 🎙️ Speech Input
-
-Cluli supports two speech architectures:
-
-### Microsoft Azure Speech
-
-Cloud-based speech recognition through Azure.
-
-### Local Whisper
-
-Speech can also be processed locally using Whisper through a persistent Python worker.
-
-The local architecture supports:
-
-* CPU inference
-* CUDA when available
-* Persistent worker processes
-* Model warmup
-* Model unloading
-* Voice activity detection
-* Local model storage
-* Manual recording
-* Automatic speech detection
+Codex helped accelerate development across multiple interconnected systems while keeping the project focused on becoming a working desktop application rather than just an AI prototype.
 
 ---
 
-# ⌨️ Global Shortcuts
+## Privacy & Security
 
-Cluli is designed so interaction does not require leaving the current application.
+Cluli handles potentially sensitive desktop context, so privacy is an important part of its architecture.
 
-| Shortcut                     | Action               |
-| ---------------------------- | -------------------- |
-| `Ctrl/Cmd + Shift + S`       | Open Settings        |
-| `Ctrl/Cmd + Shift + Alt + S` | Screenshot Analysis  |
-| `Ctrl/Cmd + Shift + V`       | Toggle Visibility    |
-| `Ctrl/Cmd + Shift + I`       | Toggle Click-Through |
-| `Ctrl/Cmd + Shift + C`       | Open Chat            |
-| `Ctrl/Cmd + Shift + \`       | Clear Session Memory |
-| `Alt + R`                    | Speech               |
-| `Ctrl/Cmd + Arrow Keys`      | Move Window          |
-| `Ctrl/Cmd + Shift + T`       | Toggle Always-on-Top |
+### Local Processing
 
----
+- Desktop screenshots are captured locally.
+- Local Whisper transcription can run on-device.
+- API credentials are stored locally.
+- `.env` is excluded from Git.
 
-# 🧩 AI Pipeline
+### Renderer Isolation
 
-Every screenshot interaction follows a structured pipeline:
+The renderer does not receive unrestricted Node.js or Electron access.
 
-```text
-┌──────────────────┐
-│ Current Desktop  │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Screenshot       │
-│ Capture          │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ PNG Conversion   │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Selected Skill   │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Recent Session   │
-│ Context          │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Gemini           │
-│ Multimodal AI    │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Streaming        │
-│ Response         │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Electron IPC     │
-└────────┬─────────┘
-         ↓
-┌──────────────────┐
-│ Response Window  │
-└──────────────────┘
-```
+Privileged functionality is exposed through a restricted preload API using Electron's `contextBridge`.
 
-Gemini requests can contain:
-
-* Text prompts
-* Captured images
-* Selected prompt skill
-* Programming-language context
-* Recent session history
-
----
-
-# 🛠️ Tech Stack
-
-| Component       | Technology                            |
-| --------------- | ------------------------------------- |
-| Desktop Runtime | Electron                              |
-| AI              | Google Gemini                         |
-| Gemini SDK      | `@google/genai`                       |
-| Frontend        | HTML / CSS / JavaScript               |
-| Desktop Capture | Electron `desktopCapturer` / `screen` |
-| IPC             | Electron IPC                          |
-| Secure Bridge   | Electron `contextBridge`              |
-| Cloud Speech    | Microsoft Azure Speech                |
-| Local Speech    | OpenAI Whisper                        |
-| ML Runtime      | Python / PyTorch                      |
-| Configuration   | dotenv                                |
-| Logging         | Winston                               |
-| Packaging       | electron-builder                      |
-| CI/CD           | GitHub Actions                        |
-
-Gemini's default model is configured through the application with fallback model candidates, while the LLM service handles timeouts, retries, fallback behavior, and streaming/non-streaming recovery.
-
----
-
-# 🔐 Security & Privacy
-
-Cluli handles potentially sensitive desktop context, so privacy is an explicit architectural concern.
-
-### Local processing
-
-* Desktop screenshots are captured locally.
-* Local Whisper transcription can be performed on-device.
-* API credentials are stored locally.
-* `.env` is excluded from Git.
-
-### Controlled renderer access
-
-The renderer communicates with privileged Electron functionality through a restricted preload API rather than unrestricted Node.js access.
-
-### Network boundaries
+### Network Boundaries
 
 When screenshot analysis is requested, the captured image is sent to Gemini for multimodal processing.
 
@@ -364,174 +329,11 @@ When Azure Speech is selected, speech data is sent to Azure.
 
 When local Whisper is selected, transcription can remain local.
 
-> **Important:** Screenshots may contain sensitive information. Users should only use screenshot analysis when they are comfortable sending the captured image to the configured AI provider.
+> Screenshots may contain sensitive information. Users should only use screenshot analysis when they are comfortable sending the captured image to the configured AI provider.
 
 ---
 
-# 🧪 Testing
-
-Cluli includes an end-to-end screenshot smoke-test workflow that validates the most important path through the application:
-
-```text
-Overlay
-   ↓
-Main Process
-   ↓
-Desktop Capture
-   ↓
-PNG Conversion
-   ↓
-Prompt Selection
-   ↓
-Gemini Authentication
-   ↓
-Multimodal Request
-   ↓
-Streaming
-   ↓
-IPC
-   ↓
-Response Rendering
-```
-
-Speech testing is also available:
-
-```bash
-npm run test-speech
-```
-
-The documented manual smoke test covers:
-
-* Application startup
-* Overlay interaction
-* Window dragging
-* Settings
-* Gemini connectivity
-* Screenshot analysis
-* Streaming
-* Chat
-* Click-through mode
-* Speech input
-* Microphone permissions
-* Transcription
-
----
-
-# 📦 Installation
-
-## Requirements
-
-You'll need:
-
-* Node.js
-* npm
-* A Gemini API key
-
-Optional speech functionality may additionally require:
-
-* Python
-* PyTorch
-* Whisper
-* CUDA-compatible hardware for GPU acceleration
-
----
-
-## Clone
-
-```bash
-git clone https://github.com/slothrulez/cluli.git
-cd cluli
-```
-
----
-
-## Install Dependencies
-
-```bash
-npm install
-```
-
----
-
-## Configure Environment
-
-Copy the example environment file:
-
-### Unix
-
-```bash
-cp env.example .env
-```
-
-### Windows CMD
-
-```cmd
-copy env.example .env
-```
-
-Then add your Gemini API key:
-
-```env
-GEMINI_API_KEY=your_real_key_here
-```
-
-Additional environment variables configure speech providers, Azure credentials, Whisper behavior, and other runtime settings.
-
----
-
-# ▶️ Running Cluli
-
-### Unix
-
-```bash
-npm start
-```
-
-### Windows CMD
-
-The package's Unix-oriented start script uses `env -u`, which is not supported by Windows CMD.
-
-Run Electron directly:
-
-```cmd
-set "ELECTRON_RUN_AS_NODE=" && node_modules\.bin\electron.cmd .
-```
-
-### Windows PowerShell
-
-```powershell
-Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
-& .\node_modules\.bin\electron.cmd .
-```
-
----
-
-# 🎤 Optional Whisper Setup
-
-Cluli can use a local Whisper worker for speech recognition.
-
-The worker is located at:
-
-```text
-scripts/whisper_worker.py
-```
-
-The JavaScript service communicates with it through JSON-lines IPC.
-
-Supported worker actions include:
-
-```text
-warmup
-transcribe
-unload
-shutdown
-```
-
-Whisper can automatically select CUDA when available and fall back to CPU otherwise.
-
----
-
-# 🏗️ Project Structure
+## Project Structure
 
 ```text
 cluli/
@@ -572,179 +374,177 @@ cluli/
 └── README.md
 ```
 
-The `assests/` directory name is intentionally retained because it is referenced by the application.
-
 ---
 
-# 🧑‍💻 Development
+## How to Run Locally
 
-The repository includes setup options for different development workflows:
+### Requirements
+
+You'll need:
+
+- Node.js
+- npm
+- Gemini API key
+
+For optional local Whisper support:
+
+- Python
+- PyTorch
+- Whisper
+- CUDA-compatible hardware for GPU acceleration
+
+### Clone
 
 ```bash
-./setup.sh
+git clone https://github.com/slothrulez/cluli.git
+cd cluli
 ```
 
-Available options include:
-
-```text
---skip-whisper
---run
---no-run
---build
---ci
-```
-
-On Windows, Git Bash or WSL can be used for the setup script.
-
----
-
-# 📋 Manual Smoke Test
-
-After starting Cluli:
-
-1. Confirm the overlay appears.
-2. Verify the overlay can be interacted with.
-3. Drag the overlay.
-4. Confirm normal clicks still work.
-5. Open Settings.
-6. Test Gemini connectivity.
-7. Trigger screenshot analysis.
-8. Confirm the response window opens.
-9. Confirm the response streams progressively.
-10. Open Chat.
-11. Send a text prompt.
-12. Toggle click-through mode.
-13. Toggle click-through back off.
-14. Optionally test speech.
-15. Verify microphone permissions.
-16. Verify transcription.
-17. Run:
+### Install
 
 ```bash
-npm run test-speech
+npm install
+```
+
+### Configure
+
+```bash
+cp env.example .env
+```
+
+Windows CMD:
+
+```cmd
+copy env.example .env
+```
+
+Add your Gemini API key:
+
+```env
+GEMINI_API_KEY=your_real_key_here
+```
+
+### Run
+
+```bash
+npm start
+```
+
+On Windows CMD:
+
+```cmd
+set "ELECTRON_RUN_AS_NODE=" && node_modules\.bin\electron.cmd .
+```
+
+On PowerShell:
+
+```powershell
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+& .\node_modules\.bin\electron.cmd .
 ```
 
 ---
 
-# 🧠 Engineering Highlights
+## Demo
 
-Cluli brings several systems together into one desktop application:
+### Live Demo
 
-* Electron multi-window orchestration
-* Transparent always-on-top windows
-* Click-through interaction
-* Global keyboard shortcuts
-* Multi-monitor desktop capture
-* Gemini multimodal inference
-* Streaming AI responses
-* Context-aware sessions
-* Skill-based prompting
-* Secure preload architecture
-* Azure speech integration
-* Local Whisper inference
-* Persistent Python ML worker
-* Voice activity detection
-* CPU/CUDA model selection
-* First-run onboarding
-* Local configuration
-* Rotating application logs
-* Cross-platform packaging
-* Automated release builds
+Cluli is a desktop application and does not currently have a browser-based live demo.
 
-The engineering challenge is not any single component — it is coordinating all of them into an interaction that feels like a native part of the desktop.
+**GitHub:**  
+https://github.com/slothrulez/cluli
+
+### Demo / Pitch Video
+
+Add your demo or pitch video here.
+
+The demo should show:
+
+1. Cluli running alongside an interview/coding environment
+2. The overlay remaining available during the session
+3. A screenshot being captured
+4. Gemini analyzing the problem
+5. The response streaming into Cluli
+6. Voice input, if demonstrated
 
 ---
 
-# 🤖 AI Development
+## Screenshots
 
-OpenAI/Codex was used during development as a software-engineering accelerator across the project.
+Add screenshots here showing:
 
-It was used to assist with implementation and iteration across areas including:
-
-* Electron architecture
-* IPC and preload boundaries
-* Desktop capture
-* Gemini integration
-* Streaming
-* Multi-window communication
-* Speech infrastructure
-* Whisper worker management
-* Testing
-* Packaging
-* CI/CD
-
-The resulting project integrates these components into a working desktop application rather than being a standalone AI prototype.
+- Cluli overlay
+- Interview question capture
+- Gemini response
+- Streaming response
+- Chat window
+- Settings
+- Voice input
+- Cluli alongside an IDE
 
 ---
 
-# 🗺️ Roadmap
-
-The architecture is designed to support future capabilities such as:
-
-* [ ] Selectable screenshot regions
-* [ ] Per-window capture
-* [ ] Multi-monitor capture UI
-* [ ] Clipboard context
-* [ ] OCR fallback
-* [ ] Image annotation
-* [ ] More AI skills
-* [ ] Per-skill configuration
-* [ ] Custom prompts
-* [ ] Response pinning
-* [ ] Session history
-* [ ] Export/import sessions
-* [ ] Configurable shortcuts
-* [ ] Model selection
-* [ ] Local LLM support
-* [ ] GPU status
-* [ ] Improved speech diagnostics
-* [ ] Accessibility improvements
-* [ ] Additional privacy controls
-* [ ] Release signing and automatic updates
-
----
-
-# ⚠️ Current Limitations
+## Current Limitations
 
 Cluli currently depends on:
 
-* Internet connectivity for Gemini requests.
-* A valid Gemini API key.
-* Provider quotas and model availability.
-* Platform-specific desktop capture/content-protection behavior.
-* Additional system resources for local Whisper.
-* CUDA availability for GPU acceleration.
-* An in-memory session rather than persistent cross-device history.
-
-Screenshot analysis also requires users to consider the privacy implications of sending their captured desktop context to the configured AI provider.
+- Internet connectivity for Gemini requests
+- A valid Gemini API key
+- Provider quotas and model availability
+- Platform-specific desktop capture/content-protection behavior
+- Additional system resources for local Whisper
+- CUDA availability for GPU acceleration
+- An in-memory session rather than persistent cross-device history
 
 ---
 
-# 🌐 Repository
+## Roadmap
 
-**GitHub:**
-https://github.com/slothrulez/cluli
+Planned improvements include:
+
+- Selectable screenshot regions
+- Per-window capture
+- Clipboard context
+- OCR fallback
+- Image annotation
+- More AI skills
+- Per-skill configuration
+- Custom prompts
+- Response pinning
+- Session history
+- Export/import sessions
+- Configurable shortcuts
+- Model selection
+- Local LLM support
+- GPU status
+- Improved speech diagnostics
+- Accessibility improvements
+- Additional privacy controls
+- Release signing and automatic updates
 
 ---
 
-# 💡 The Idea
+## Why Cluli?
 
-The fundamental idea behind Cluli is simple:
+AI assistants are already good at solving problems.
 
-> **The AI shouldn't require you to leave your workflow to give it context.**
+The frustrating part is getting the problem to them at the right moment.
 
-Your code is on the screen.
-Your error is on the screen.
-Your documentation is on the screen.
-Your diagram is on the screen.
-Your problem is on the screen.
+During an interview, that friction matters even more.
 
-**So why not let the screen become the context?**
+Cluli is built around the idea that the AI should be able to understand the context that's already in front of you — without forcing you to leave the workflow.
 
-Cluli is an attempt to make that interaction feel native.
+**Your question is on the screen.  
+Cluli sees the context.  
+Gemini reasons about it.  
+The answer comes back to you.**
 
 ---
 
-## Built with Electron + Codex
+## Built With
 
-**Cluli — contextual AI for your desktop.**
+**Electron · Gemini · Whisper · Codex**
+
+Made for technical interviews, OAs, DSA, and competitive programming.
+
+**Cluli — AI assistance without leaving the interview.**
