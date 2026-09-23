@@ -6,11 +6,6 @@
 
 Real-time AI help on a stealth overlay that screen sharing cannot see. Ask by voice or screenshot, and get clear answers that stream in as you need them.
 
-
-<a href="#download">Download</a> &nbsp;|&nbsp;
-<a href="#quick-start">Quick start</a> &nbsp;|&nbsp;
-<a href="#how-it-works">How it works</a>
-
 **See something → Capture it → Ask → Get a streamed answer.**
 
 [![Electron](https://img.shields.io/badge/Electron-Desktop%20App-47848F?logo=electron\&logoColor=white)](https://www.electronjs.org/)
